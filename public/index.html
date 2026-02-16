@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head> 
+    <meta charset="UTF-8">
+    <title>Tamid Task Manager</title>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 50px auto; line-height: 1.6; }
+        .task-item { border: 1px solid #ddd; padding: 10px; margin: 5px 0; display: flex; justify-content: space-between; align-items: center; }
+        .done { text-decoration: line-through; color: #888; }
+        .controls { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+    <h1>Task Manager</h1>
+    
+    <div class="controls">
+        <input type="text" id="taskName" placeholder="What needs doing?"> <!-- placeholder = ghost text -->
+        <button onclick="addTask()">Add Task</button>
+    </div>
+
+    <div id="taskList"></div>
+
+    <script>
+        async function refreshTasks() { <!-- masync means that waiting fro server to respond -->
+            const res = await fetch('/tasks'); <!-- wait for response before moving forwards -->
+            const tasks = await res.json();
+            const list = document.getElementById('taskList');
+            list.innerHTML = ''; <!-- needed so that old tasks not rewritten -->
+
+            tasks.forEach(t => {
+                const div = document.createElement('div');
+                div.className = 'task-item';
+                div.innerHTML = `
+                    <span class="${t.finished ? 'done' : ''}">${t.name} (ID: ${t.id})</span>
+                    <div>
+                        <button onclick="markDone(${t.id})">✓</button>
+                        <button onclick="deleteTask(${t.id})">X</button>
+                    </div>
+                `;
+                list.appendChild(div);
+            });
+        }
+
+        async function addTask() {
+            const nameInput = document.getElementById('taskName');
+            if (!nameInput.value) return; <!-- doesn't let add empty task -->
+            await fetch(`/add?name=${encodeURIComponent(nameInput.value)}`);
+            nameInput.value = ''; <!-- clears text box -->
+            refreshTasks(); <!-- calls method to show new task -->
+        }
+
+        async function markDone(id) {
+            await fetch(`/update/${id}`);
+            refreshTasks();
+        }
+
+        async function deleteTask(id) {
+            await fetch(`/delete/${id}`);
+            refreshTasks();
+        }
+
+        refreshTasks();
+    </script>
+</body>
+</html>
