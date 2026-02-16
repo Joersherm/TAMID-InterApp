@@ -11,8 +11,9 @@ Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
 
 ### 2. Install Dependencies
 Navigate to the `tamid_interapp` folder in your terminal and run:
-```bash
+\`\`\bash
 npm install express
+\`\`\`
 
 ### 3. Run the Backend
 Start the server by executing:
